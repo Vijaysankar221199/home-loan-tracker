@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { formatYYYYMM } from '../utils/loanUtils';
+import { PaymentFormProps } from '../types';
 
-const PaymentForm: React.FC<{defaultEmi:number,onSubmit:(entry:{month:string,emiPaid:number,extraPaid:number})=>void}> = ({defaultEmi, onSubmit}) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({defaultEmi, onSubmit}) => {
   const now = new Date();
   const [month, setMonth] = useState(formatYYYYMM(now));
   const [emi, setEmi] = useState(defaultEmi||0);

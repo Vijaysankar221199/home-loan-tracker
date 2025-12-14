@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { SettingsModalProps } from '../types';
 
-interface Settings {
-  principalAmount: number;
-  annualInterestRate: number;
-  tenureYears: number;
-  calculatedEmi?: number;
-}
-
-const SettingsModal: React.FC<{
-  visible: boolean;
-  onClose: () => void;
-  settings: Settings | null;
-  onSave: (settings: Settings) => void;
-}> = ({visible, onClose, settings, onSave}) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose, settings, onSave}) => {
   const [form, setForm] = useState({principalAmount:'', annualInterestRate:'', tenureYears:''});
   useEffect(()=>{ if(settings){ setForm({ principalAmount:settings.principalAmount.toString(), annualInterestRate:settings.annualInterestRate.toString(), tenureYears:settings.tenureYears.toString() }); } },[settings]);
   if(!visible) return null;
@@ -24,7 +13,7 @@ const SettingsModal: React.FC<{
     if(!p || p<=0) return alert('Principal must be >0');
     if(!r || r<=0) return alert('Interest rate >0');
     if(!t || t<=0) return alert('Tenure >0');
-    onSave({principalAmount:p, annualInterestRate:r, tenureYears:t});
+    onSave({principalAmount:p, annualInterestRate:r, tenureYears:t, calculatedEmi: null});
     onClose();
   };
   return (

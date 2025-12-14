@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { MockBackend } from '../services/mockBackend';
 import { calculateEmi, generateAmortizationSchedule, formatYYYYMM } from '../utils/loanUtils';
+import { LoanStore, LoanSettings, MonthlyPayment, AmortizationEntry } from '../types';
 
 export const useLoanTracker = () => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<LoanStore | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(()=>{
     let cancelled=false;
@@ -17,18 +18,18 @@ export const useLoanTracker = () => {
       }
       setData(d);
       setLoading(false);
-    }}).catch(e=>{ if(!cancelled){ setError(e); setLoading(false); }});
+    }}).catch(e=>{ if(!cancelled){ setError(e instanceof Error ? e : new Error(String(e))); setLoading(false); }});
     return ()=> { cancelled=true; };
   },[]);
 
-  const saveSettings = useCallback(async (settings:any)=>{
+  const saveSettings = useCallback(async (settings: Partial<LoanSettings>)=>{
     setLoading(true);
     try{
       const newStore = await MockBackend.saveSettings(settings);
       newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
       newStore.summary.remainingPrincipal = newStore.loanSettings.principalAmount;
       setData(newStore);
-    }catch(err){setError(err);}finally{setLoading(false);}    
+    }catch(err){setError(err instanceof Error ? err : new Error(String(err)));}finally{setLoading(false);}    
   },[]);
 
   const addMonthlyPayment = useCallback(async ({month, emiPaid, extraPaid}:{month:string,emiPaid:number,extraPaid:number})=>{
@@ -83,7 +84,7 @@ export const useLoanTracker = () => {
     const baseEmi = settings.calculatedEmi || calculateEmi(settings.principalAmount, settings.annualInterestRate, settings.tenureYears);
     // amortize two scenarios
     const baseSchedule = generateAmortizationSchedule(settings.principalAmount, settings.annualInterestRate, settings.tenureYears, baseEmi);
-    const base = baseSchedule.map(e => ({month: e.monthIndex, interest: e.interestPaid, principal: e.principalPaid, remaining: e.remainingPrincipal}));
+    const base: AmortizationEntry[] = baseSchedule.map(e => ({month: e.monthIndex, interest: e.interestPaid, principal: e.principalPaid, remaining: e.remainingPrincipal}));
     // incorporate extras from payments
     const extrasByMonth: Record<string, number> = {};
     const sortedPayments = [...data.monthlyPayments].sort((a,b)=> a.month.localeCompare(b.month));
@@ -91,11 +92,11 @@ export const useLoanTracker = () => {
       extrasByMonth[`m${i+1}`] = sortedPayments[i].extraPaid;
     }
     const withExtrasSchedule = generateAmortizationSchedule(settings.principalAmount, settings.annualInterestRate, settings.tenureYears, baseEmi, extrasByMonth);
-    const withExtras = withExtrasSchedule.map(e => ({month: e.monthIndex, interest: e.interestPaid, principal: e.principalPaid, remaining: e.remainingPrincipal}));
+    const withExtras: AmortizationEntry[] = withExtrasSchedule.map(e => ({month: e.monthIndex, interest: e.interestPaid, principal: e.principalPaid, remaining: e.remainingPrincipal}));
 
     // compute savings
     const monthsSaved = base.length - withExtras.length;
-    const interestSaved = base.reduce((s:number,e:any)=>s+e.interest,0) - withExtras.reduce((s:number,e:any)=>s+e.interest,0);
+    const interestSaved = base.reduce((s:number,e: AmortizationEntry)=>s+e.interest,0) - withExtras.reduce((s:number,e: AmortizationEntry)=>s+e.interest,0);
 
     return {
       base,

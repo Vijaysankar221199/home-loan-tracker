@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { EditPaymentsProps, MonthlyPayment } from '../types';
 
-const EditPayments: React.FC<{payments: any[], onEdit: (data: {oldMonth: string, month: string, emiPaid: number, extraPaid: number}) => Promise<void>}> = ({payments, onEdit}) => {
+const EditPayments: React.FC<EditPaymentsProps> = ({payments, onEdit}) => {
   const [editing, setEditing] = useState<string | null>(null);
   const [editData, setEditData] = useState({month: '', emiPaid: 0, extraPaid: 0});
 
-  const startEdit = (p: any) => {
+  const startEdit = (p: MonthlyPayment) => {
     setEditing(p.month);
     setEditData({month: p.month, emiPaid: p.emiPaid, extraPaid: p.extraPaid});
   };

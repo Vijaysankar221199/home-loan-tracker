@@ -11,12 +11,13 @@ import { useLoanTracker } from './hooks/useLoanTracker';
 const Dashboard: React.FC = () => {
   const { data, loading, error, saveSettings, addMonthlyPayment, editMonthlyPayment, forecast } = useLoanTracker();
   const [showSettings, setShowSettings] = useState(false);
-  const settings = data ? data.loanSettings : null;
 
   if(loading) return <div className="card">Loading...</div>;
   if(error) return <div className="card">Error: {String(error)}</div>;
+  if(!data) return <div className="card">No data</div>;
 
   const summary = data.summary;
+  const settings = data.loanSettings;
 
   return (
     <div className="app-container">
@@ -34,16 +35,16 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         <div style={{width:360}}>
-          <PaymentForm defaultEmi={settings.calculatedEmi} onSubmit={async (entry:any)=>{
+          <PaymentForm defaultEmi={settings.calculatedEmi || 0} onSubmit={async (entry)=>{
             try{
               await addMonthlyPayment(entry);
-            }catch(e:any){alert(e.message)}
+            }catch(e){alert((e as Error).message)}
           }} />
           <div style={{height:12}} />
           <EditPayments payments={data.monthlyPayments} onEdit={async (editData)=>{
             try{
               await editMonthlyPayment(editData);
-            }catch(e:any){alert(e.message)}
+            }catch(e){alert((e as Error).message)}
           }} />
           <div style={{height:12}} />
           <div className="card">

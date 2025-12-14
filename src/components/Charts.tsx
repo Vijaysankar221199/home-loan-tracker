@@ -2,10 +2,11 @@ import React, { useContext } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend } from 'chart.js';
 import { ThemeContext } from '../themes/themeContext';
+import { ChartsProps } from '../types';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
 
-const Charts: React.FC<{payments:any[]}> = ({payments}) => {
+const Charts: React.FC<ChartsProps> = ({payments}) => {
   const { theme } = useContext(ThemeContext);
   const colors = theme==='light' ? {
     primary:'#2563eb', accent:'#60a5fa', bg:'#fff', text:'#111827'

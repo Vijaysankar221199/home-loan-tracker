@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 import { ThemeContext } from '../themes/themeContext';
+import { HeaderProps } from '../types';
 
-const Header: React.FC<{onOpenSettings: () => void}> = ({ onOpenSettings }) => {
-  const { theme, toggle } = useContext(ThemeContext);
+const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
+  const { theme, toggleTheme } = useContext(ThemeContext);
   return (
     <div className="header">
       <div className="brand">
@@ -14,7 +15,7 @@ const Header: React.FC<{onOpenSettings: () => void}> = ({ onOpenSettings }) => {
       </div>
       <div style={{display:'flex',gap:12,alignItems:'center'}}>
         <button className="button" onClick={onOpenSettings}>Settings</button>
-        <button className="button" onClick={toggle}>{theme==='light'?'Dark':'Light'} Mode</button>
+        <button className="button" onClick={toggleTheme}>{theme==='light'?'Dark':'Light'} Mode</button>
       </div>
     </div>
   );

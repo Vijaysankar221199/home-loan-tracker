@@ -1,38 +1,9 @@
 // Simple JSON-based service that persists data in localStorage.
 // Exposes async methods to load and update data.
 
-type LoanSettings = {
-  principalAmount: number;
-  annualInterestRate: number;
-  tenureYears: number;
-  calculatedEmi: number | null;
-};
+import { LoanSettings, MonthlyPayment, SummaryStats, LoanStore } from '../types';
 
-type MonthlyPayment = {
-  month: string;
-  emiPaid: number;
-  extraPaid: number;
-  interestComponent: number;
-  principalComponent: number;
-  remainingPrincipal: number;
-};
-
-type SummaryStats = {
-  totalPaid: number;
-  totalInterestPaid: number;
-  remainingPrincipal: number;
-  monthsCompleted: number;
-  forecastedEndDate: string | null;
-  interestSavedDueToExtra: number;
-};
-
-type Store = {
-  loanSettings: LoanSettings;
-  monthlyPayments: MonthlyPayment[];
-  summary: SummaryStats;
-};
-
-const initialData: Store = {
+const initialData: LoanStore = {
   loanSettings: {
     principalAmount: 500000,
     annualInterestRate: 7.5,
@@ -52,7 +23,7 @@ const initialData: Store = {
 
 const STORAGE_KEY = 'loanTrackerData';
 
-const loadFromStorage = (): Store => {
+const loadFromStorage = (): LoanStore => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(initialData));
@@ -62,7 +33,7 @@ const loadFromStorage = (): Store => {
   }
 };
 
-const saveToStorage = (data: Store): void => {
+const saveToStorage = (data: LoanStore): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
@@ -73,11 +44,11 @@ const saveToStorage = (data: Store): void => {
 const randomDelay = (min=120, max=400) => new Promise(res => setTimeout(res, Math.random()*(max-min)+min));
 
 export const MockBackend = {
-  async load(): Promise<Store> {
+  async load(): Promise<LoanStore> {
     await randomDelay();
     return loadFromStorage();
   },
-  async saveSettings(newSettings: Partial<LoanSettings>): Promise<Store> {
+  async saveSettings(newSettings: Partial<LoanSettings>): Promise<LoanStore> {
     await randomDelay();
     const store = loadFromStorage();
     store.loanSettings = { ...store.loanSettings, ...newSettings };
@@ -148,7 +119,7 @@ export const MockBackend = {
     saveToStorage(store);
     return newEntry;
   },
-  async loadFile(): Promise<Store> {
+  async loadFile(): Promise<LoanStore> {
     await randomDelay();
     return loadFromStorage();
   }
