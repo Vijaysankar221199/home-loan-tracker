@@ -1,4 +1,4 @@
-// Simple in-memory JSON service that acts as single source of truth.
+// Simple JSON-based service that persists data in localStorage.
 // Exposes async methods to load and update data.
 
 type LoanSettings = {
@@ -50,48 +50,70 @@ const initialData: Store = {
   }
 };
 
-let store: Store = JSON.parse(JSON.stringify(initialData));
+const STORAGE_KEY = 'loanTrackerData';
+
+const loadFromStorage = (): Store => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(initialData));
+  } catch (error) {
+    console.error('Error loading from localStorage:', error);
+    return JSON.parse(JSON.stringify(initialData));
+  }
+};
+
+const saveToStorage = (data: Store): void => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+};
 
 const randomDelay = (min=120, max=400) => new Promise(res => setTimeout(res, Math.random()*(max-min)+min));
 
 export const MockBackend = {
   async load(): Promise<Store> {
     await randomDelay();
-    return JSON.parse(JSON.stringify(store));
+    return loadFromStorage();
   },
   async saveSettings(newSettings: Partial<LoanSettings>): Promise<Store> {
     await randomDelay();
+    const store = loadFromStorage();
     store.loanSettings = { ...store.loanSettings, ...newSettings };
     store.loanSettings.calculatedEmi = null;
     store.summary.remainingPrincipal = store.loanSettings.principalAmount;
     store.monthlyPayments = [];
     store.summary = { ...store.summary, totalPaid:0, totalInterestPaid:0, monthsCompleted:0, forecastedEndDate:null, interestSavedDueToExtra:0 };
-    return JSON.parse(JSON.stringify(store));
+    saveToStorage(store);
+    return store;
   },
   async addMonthlyPayment(entry: MonthlyPayment): Promise<MonthlyPayment> {
     await randomDelay();
+    const store = loadFromStorage();
     const idx = store.monthlyPayments.findIndex(m => m.month === entry.month);
     if(idx>=0) store.monthlyPayments[idx]=entry; else store.monthlyPayments.push(entry);
     store.monthlyPayments.sort((a,b)=> a.month.localeCompare(b.month));
     let remaining = store.loanSettings.principalAmount;
     let totalPaid=0, totalInterest=0;
     for(const m of store.monthlyPayments){
-      remaining = Math.max(0, remaining - m.principalComponent);
+      remaining = Math.max(0, remaining - m.principalComponent - m.extraPaid);
       totalPaid += m.emiPaid + (m.extraPaid||0);
       totalInterest += m.interestComponent;
     }
     store.summary.remainingPrincipal = remaining;
-    store.summary.totalPaid = Math.round(totalPaid*100)/100;
-    store.summary.totalInterestPaid = Math.round(totalInterest*100)/100;
+    store.summary.totalPaid = Math.round(totalPaid);
+    store.summary.totalInterestPaid = Math.round(totalInterest);
     store.summary.monthsCompleted = store.monthlyPayments.length;
     if(remaining<=0){
       const last = store.monthlyPayments[store.monthlyPayments.length-1];
       store.summary.forecastedEndDate = last.month;
     }
-    return JSON.parse(JSON.stringify(entry));
+    saveToStorage(store);
+    return entry;
   },
   async loadFile(): Promise<Store> {
     await randomDelay();
-    return JSON.parse(JSON.stringify(initialData));
+    return loadFromStorage();
   }
 };

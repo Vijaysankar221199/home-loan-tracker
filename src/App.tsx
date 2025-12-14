@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
             <StatsCard title="Progress" value={`${Math.round(((settings.principalAmount - (summary.remainingPrincipal||settings.principalAmount))/settings.principalAmount)*100)||0}%`} subtitle={`${summary.monthsCompleted||0} months completed`} accent="var(--accent)" />
           </div>
           <div style={{marginTop:12}}>
-            <Charts payments={data.monthlyPayments} forecast={forecast} />
+            <Charts payments={data.monthlyPayments} />
           </div>
         </div>
         <div style={{width:360}}>

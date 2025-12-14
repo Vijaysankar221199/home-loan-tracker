@@ -39,10 +39,10 @@ export const useLoanTracker = () => {
     const monthlyRate = settings.annualInterestRate/100/12;
 
     // interest on remaining
-    const interest = parseFloat((prevRemaining * monthlyRate).toFixed(2));
-    const principalComponent = Math.max(0, Math.min(parseFloat((emiPaid - interest).toFixed(2)), prevRemaining));
+    const interest = Math.round(prevRemaining * monthlyRate);
+    const principalComponent = Math.round(emiPaid - interest);
     const extra = Number(extraPaid)||0;
-    let remaining = Math.max(0, +(prevRemaining - principalComponent - extra).toFixed(2));
+    let remaining = Math.max(0, Math.round(prevRemaining - principalComponent - extra));
 
     const entry = {
       month,
@@ -68,9 +68,14 @@ export const useLoanTracker = () => {
     // amortize two scenarios
     const baseSchedule = generateAmortizationSchedule(settings.principalAmount, settings.annualInterestRate, settings.tenureYears, baseEmi);
     const base = baseSchedule.map(e => ({month: e.monthIndex, interest: e.interestPaid, principal: e.principalPaid, remaining: e.remainingPrincipal}));
-    // incorporate extras from payments - note: current implementation assumes extras are per sequential month, but payments are by date
-    // For simplicity, using base for both; proper implementation would require mapping dates to indices
-    const withExtras = base;
+    // incorporate extras from payments
+    const extrasByMonth: Record<string, number> = {};
+    const sortedPayments = [...data.monthlyPayments].sort((a,b)=> a.month.localeCompare(b.month));
+    for(let i = 0; i < sortedPayments.length; i++){
+      extrasByMonth[`m${i+1}`] = sortedPayments[i].extraPaid;
+    }
+    const withExtrasSchedule = generateAmortizationSchedule(settings.principalAmount, settings.annualInterestRate, settings.tenureYears, baseEmi, extrasByMonth);
+    const withExtras = withExtrasSchedule.map(e => ({month: e.monthIndex, interest: e.interestPaid, principal: e.principalPaid, remaining: e.remainingPrincipal}));
 
     // compute savings
     const monthsSaved = base.length - withExtras.length;
@@ -80,7 +85,7 @@ export const useLoanTracker = () => {
       base,
       withExtras,
       monthsSaved,
-      interestSaved: Math.round(interestSaved*100)/100
+      interestSaved: Math.round(interestSaved)
     };
   },[data]);
 

@@ -10,11 +10,11 @@ export const calculateEmi = (principal: number, annualInterestRate: number, tenu
   const numberOfMonths = tenureYears * 12;
 
   if (monthlyRate === 0) {
-    return Math.round((principal / numberOfMonths) * 100) / 100;
+    return Math.round(principal / numberOfMonths);
   }
 
   const emi = principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfMonths) / (Math.pow(1 + monthlyRate, numberOfMonths) - 1);
-  return Math.round(emi * 100) / 100;
+  return Math.round(emi);
 };
 
 /**
@@ -40,10 +40,10 @@ export const calculateMonthlyAmortization = (
   const monthlyRate = annualInterestRate / 100 / 12;
 
   // Calculate interest for the month on remaining principal
-  const interestForMonth = Math.round(remainingPrincipal * monthlyRate * 100) / 100;
+  const interestForMonth = Math.round(remainingPrincipal * monthlyRate);
 
   // Principal component from EMI
-  const principalFromEmi = Math.min(emi - interestForMonth, remainingPrincipal);
+  const principalFromEmi = Math.round(emi - interestForMonth);
 
   // Extra payment
   const extraPaid = extraPayment;
