@@ -5,10 +5,11 @@ import StatsCard from './components/StatsCard';
 import SettingsModal from './components/SettingsModal';
 import PaymentForm from './components/PaymentForm';
 import Charts from './components/Charts';
+import { EditPayments } from './components';
 import { useLoanTracker } from './hooks/useLoanTracker';
 
 const Dashboard: React.FC = () => {
-  const { data, loading, error, saveSettings, addMonthlyPayment, forecast } = useLoanTracker();
+  const { data, loading, error, saveSettings, addMonthlyPayment, editMonthlyPayment, forecast } = useLoanTracker();
   const [showSettings, setShowSettings] = useState(false);
   const settings = data ? data.loanSettings : null;
 
@@ -36,6 +37,12 @@ const Dashboard: React.FC = () => {
           <PaymentForm defaultEmi={settings.calculatedEmi} onSubmit={async (entry:any)=>{
             try{
               await addMonthlyPayment(entry);
+            }catch(e:any){alert(e.message)}
+          }} />
+          <div style={{height:12}} />
+          <EditPayments payments={data.monthlyPayments} onEdit={async (editData)=>{
+            try{
+              await editMonthlyPayment(editData);
             }catch(e:any){alert(e.message)}
           }} />
           <div style={{height:12}} />

@@ -112,6 +112,42 @@ export const MockBackend = {
     saveToStorage(store);
     return entry;
   },
+  async editMonthlyPayment(oldMonth: string, newEntry: MonthlyPayment): Promise<MonthlyPayment> {
+    await randomDelay();
+    const store = loadFromStorage();
+    // remove old
+    store.monthlyPayments = store.monthlyPayments.filter(m => m.month !== oldMonth);
+    // add new
+    store.monthlyPayments.push(newEntry);
+    store.monthlyPayments.sort((a,b)=> a.month.localeCompare(b.month));
+    // recalculate all
+    let remaining = store.loanSettings.principalAmount;
+    let totalPaid = 0;
+    let totalInterest = 0;
+    for(const m of store.monthlyPayments){
+      const monthlyRate = store.loanSettings.annualInterestRate / 100 / 12;
+      const interest = Math.round(remaining * monthlyRate);
+      const principalComponent = Math.round(m.emiPaid - interest);
+      const extra = m.extraPaid || 0;
+      remaining = Math.max(0, Math.round(remaining - principalComponent - extra));
+      totalPaid += m.emiPaid + extra;
+      totalInterest += interest;
+      // update the entry
+      m.interestComponent = interest;
+      m.principalComponent = principalComponent;
+      m.remainingPrincipal = remaining;
+    }
+    store.summary.remainingPrincipal = remaining;
+    store.summary.totalPaid = Math.round(totalPaid);
+    store.summary.totalInterestPaid = Math.round(totalInterest);
+    store.summary.monthsCompleted = store.monthlyPayments.length;
+    if(remaining <= 0){
+      const last = store.monthlyPayments[store.monthlyPayments.length-1];
+      store.summary.forecastedEndDate = last.month;
+    }
+    saveToStorage(store);
+    return newEntry;
+  },
   async loadFile(): Promise<Store> {
     await randomDelay();
     return loadFromStorage();

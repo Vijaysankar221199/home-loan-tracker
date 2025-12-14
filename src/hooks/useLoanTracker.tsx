@@ -61,6 +61,22 @@ export const useLoanTracker = () => {
     return entry;
   },[data]);
 
+  const editMonthlyPayment = useCallback(async ({oldMonth, month, emiPaid, extraPaid}:{oldMonth:string, month:string, emiPaid:number, extraPaid:number})=>{
+    const newEntry = {
+      month,
+      emiPaid: Number(emiPaid),
+      extraPaid: Number(extraPaid),
+      interestComponent: 0, // dummy
+      principalComponent: 0,
+      remainingPrincipal: 0
+    };
+    await MockBackend.editMonthlyPayment(oldMonth, newEntry);
+    // reload
+    const newStore = await MockBackend.load();
+    newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
+    setData(newStore);
+  },[data]);
+
   const forecast = useMemo(()=>{
     if(!data) return null;
     const settings = data.loanSettings;
@@ -95,6 +111,7 @@ export const useLoanTracker = () => {
     error,
     saveSettings,
     addMonthlyPayment,
+    editMonthlyPayment,
     forecast
   };
 };
