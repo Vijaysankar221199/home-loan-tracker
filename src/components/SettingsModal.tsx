@@ -1,11 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsModalProps } from '../types';
 
+/**
+ * SettingsModal component for editing loan settings.
+ * @param visible - Whether the modal is visible.
+ * @param onClose - Callback to close the modal.
+ * @param settings - The current loan settings.
+ * @param onSave - Callback to save the updated settings.
+ */
 const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose, settings, onSave}) => {
   const [form, setForm] = useState({principalAmount:'', annualInterestRate:'', tenureYears:''});
-  useEffect(()=>{ if(settings){ setForm({ principalAmount:settings.principalAmount.toString(), annualInterestRate:settings.annualInterestRate.toString(), tenureYears:settings.tenureYears.toString() }); } },[settings]);
+  useEffect(() => {
+    if (settings) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setForm({
+        principalAmount: settings.principalAmount.toString(),
+        annualInterestRate: settings.annualInterestRate.toString(),
+        tenureYears: settings.tenureYears.toString()
+      });
+    }
+  }, [settings]);
   if(!visible) return null;
+
+  /**
+   * Updates the form state for a given key.
+   * @param k - The key to update.
+   * @param v - The new value.
+   */
   const update = (k:string,v:string)=> setForm(f=>({...f,[k]:v}));
+
+  /**
+   * Handles form submission.
+   */
   const submit = ()=>{
     const p = Number(form.principalAmount);
     const r = Number(form.annualInterestRate);

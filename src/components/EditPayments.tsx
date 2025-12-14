@@ -1,20 +1,35 @@
 import React, { useState } from 'react';
 import { EditPaymentsProps, MonthlyPayment } from '../types';
 
+/**
+ * EditPayments component for editing monthly payment entries.
+ * @param payments - The list of monthly payments.
+ * @param onEdit - Callback to handle editing a payment.
+ */
 const EditPayments: React.FC<EditPaymentsProps> = ({payments, onEdit}) => {
   const [editing, setEditing] = useState<string | null>(null);
   const [editData, setEditData] = useState({month: '', emiPaid: 0, extraPaid: 0});
 
+  /**
+   * Starts editing a payment entry.
+   * @param p - The payment to edit.
+   */
   const startEdit = (p: MonthlyPayment) => {
     setEditing(p.month);
     setEditData({month: p.month, emiPaid: p.emiPaid, extraPaid: p.extraPaid});
   };
 
+  /**
+   * Saves the edited payment.
+   */
   const saveEdit = async () => {
     await onEdit({oldMonth: editing!, ...editData});
     setEditing(null);
   };
 
+  /**
+   * Cancels the editing process.
+   */
   const cancelEdit = () => {
     setEditing(null);
   };

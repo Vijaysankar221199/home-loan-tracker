@@ -1,8 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { MockBackend } from '../services/mockBackend';
-import { calculateEmi, generateAmortizationSchedule, formatYYYYMM } from '../utils/loanUtils';
-import { LoanStore, LoanSettings, MonthlyPayment, AmortizationEntry } from '../types';
+import { calculateEmi, generateAmortizationSchedule } from '../utils/loanUtils';
+import { LoanStore, LoanSettings, AmortizationEntry } from '../types';
 
+/**
+ * Custom hook for managing loan tracker data and operations.
+ * @returns An object containing data, loading state, error, and handler functions.
+ */
 export const useLoanTracker = () => {
   const [data, setData] = useState<LoanStore | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -76,7 +80,7 @@ export const useLoanTracker = () => {
     const newStore = await MockBackend.load();
     newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
     setData(newStore);
-  },[data]);
+  },[]);
 
   const forecast = useMemo(()=>{
     if(!data) return null;

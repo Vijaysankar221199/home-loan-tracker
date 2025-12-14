@@ -122,6 +122,11 @@ export const generateAmortizationSchedule = (
   return schedule;
 };
 
+/**
+ * Formats a date to YYYY-MM string.
+ * @param date - The date to format
+ * @returns The formatted date string
+ */
 export const formatYYYYMM = (date: Date): string => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');

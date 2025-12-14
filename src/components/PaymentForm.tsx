@@ -2,14 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { formatYYYYMM } from '../utils/loanUtils';
 import { PaymentFormProps } from '../types';
 
+/**
+ * PaymentForm component for recording monthly payments.
+ * @param defaultEmi - The default EMI value to display.
+ * @param onSubmit - Callback to handle form submission.
+ */
 const PaymentForm: React.FC<PaymentFormProps> = ({defaultEmi, onSubmit}) => {
   const now = new Date();
   const [month, setMonth] = useState(formatYYYYMM(now));
   const [emi, setEmi] = useState(defaultEmi||0);
   const [extra, setExtra] = useState(0);
 
-  useEffect(()=> setEmi(defaultEmi||0), [defaultEmi]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEmi(defaultEmi || 0);
+  }, [defaultEmi]);
 
+  /**
+   * Handles form submission.
+   */
   const submit = ()=>{
     const e = Number(emi);
     const ex = Number(extra)||0;

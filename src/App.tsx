@@ -8,6 +8,9 @@ import Charts from './components/Charts';
 import { EditPayments } from './components';
 import { useLoanTracker } from './hooks/useLoanTracker';
 
+/**
+ * Main dashboard component.
+ */
 const Dashboard: React.FC = () => {
   const { data, loading, error, saveSettings, addMonthlyPayment, editMonthlyPayment, forecast } = useLoanTracker();
   const [showSettings, setShowSettings] = useState(false);
@@ -64,6 +67,9 @@ const Dashboard: React.FC = () => {
   );
 };
 
+/**
+ * Root App component.
+ */
 const App: React.FC = () => (
   <ThemeProvider>
     <Dashboard />

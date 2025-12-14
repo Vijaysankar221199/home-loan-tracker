@@ -1,7 +1,7 @@
 // Simple JSON-based service that persists data in localStorage.
 // Exposes async methods to load and update data.
 
-import { LoanSettings, MonthlyPayment, SummaryStats, LoanStore } from '../types';
+import { LoanSettings, MonthlyPayment, LoanStore } from '../types';
 
 const initialData: LoanStore = {
   loanSettings: {
@@ -23,6 +23,10 @@ const initialData: LoanStore = {
 
 const STORAGE_KEY = 'loanTrackerData';
 
+/**
+ * Loads the loan store data from localStorage.
+ * @returns The loaded loan store data.
+ */
 const loadFromStorage = (): LoanStore => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -33,6 +37,10 @@ const loadFromStorage = (): LoanStore => {
   }
 };
 
+/**
+ * Saves the loan store data to localStorage.
+ * @param data - The data to save.
+ */
 const saveToStorage = (data: LoanStore): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -41,13 +49,31 @@ const saveToStorage = (data: LoanStore): void => {
   }
 };
 
-const randomDelay = (min=120, max=400) => new Promise(res => setTimeout(res, Math.random()*(max-min)+min));
+/**
+ * Simulates a random delay for async operations.
+ * @param min - Minimum delay in milliseconds (default 120).
+ * @param max - Maximum delay in milliseconds (default 400).
+ * @returns A promise that resolves after the delay.
+ */
+const randomDelay = (min = 120, max = 400) => new Promise(res => setTimeout(res, Math.random() * (max - min) + min));
 
+/**
+ * Mock backend service for loan tracker data operations.
+ */
 export const MockBackend = {
+  /**
+   * Loads the loan store data.
+   * @returns A promise that resolves to the loan store data.
+   */
   async load(): Promise<LoanStore> {
     await randomDelay();
     return loadFromStorage();
   },
+  /**
+   * Saves new loan settings and resets related data.
+   * @param newSettings - Partial loan settings to update.
+   * @returns A promise that resolves to the updated loan store.
+   */
   async saveSettings(newSettings: Partial<LoanSettings>): Promise<LoanStore> {
     await randomDelay();
     const store = loadFromStorage();
@@ -59,6 +85,11 @@ export const MockBackend = {
     saveToStorage(store);
     return store;
   },
+  /**
+   * Adds or updates a monthly payment entry.
+   * @param entry - The monthly payment entry to add or update.
+   * @returns A promise that resolves to the added entry.
+   */
   async addMonthlyPayment(entry: MonthlyPayment): Promise<MonthlyPayment> {
     await randomDelay();
     const store = loadFromStorage();
@@ -83,6 +114,12 @@ export const MockBackend = {
     saveToStorage(store);
     return entry;
   },
+  /**
+   * Edits a monthly payment entry.
+   * @param oldMonth - The month of the entry to edit.
+   * @param newEntry - The new entry data.
+   * @returns A promise that resolves to the updated entry.
+   */
   async editMonthlyPayment(oldMonth: string, newEntry: MonthlyPayment): Promise<MonthlyPayment> {
     await randomDelay();
     const store = loadFromStorage();
@@ -119,6 +156,10 @@ export const MockBackend = {
     saveToStorage(store);
     return newEntry;
   },
+  /**
+   * Loads the loan store data (alias for load).
+   * @returns A promise that resolves to the loan store data.
+   */
   async loadFile(): Promise<LoanStore> {
     await randomDelay();
     return loadFromStorage();

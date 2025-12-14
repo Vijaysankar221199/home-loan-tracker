@@ -6,6 +6,10 @@ import { ChartsProps } from '../types';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
 
+/**
+ * Charts component for displaying payment data in bar charts.
+ * @param payments - The list of monthly payments to chart.
+ */
 const Charts: React.FC<ChartsProps> = ({payments}) => {
   const { theme } = useContext(ThemeContext);
   const colors = theme==='light' ? {
