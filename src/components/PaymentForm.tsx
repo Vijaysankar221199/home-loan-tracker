@@ -22,11 +22,11 @@ const PaymentForm: React.FC<{defaultEmi:number,onSubmit:(entry:{month:string,emi
       <div style={{fontWeight:700}}>Record Monthly Payment</div>
       <div style={{marginTop:10}}>
         <div className="label">Month (YYYY-MM)</div>
-        <input className="input" value={month} onChange={e=>setMonth(e.target.value)} />
+        <input className="input" type="month" value={month} onChange={e=>setMonth(e.target.value)} />
         <div className="label">EMI</div>
-        <input className="input" value={emi} onChange={e=>setEmi(e.target.value)} />
+        <input className="input" type="number" min="0" value={emi} onChange={e=>setEmi(Number(e.target.value))} />
         <div className="label">Extra Payment (optional)</div>
-        <input className="input" value={extra} onChange={e=>setExtra(e.target.value)} />
+        <input className="input" type="number" min="0" value={extra} onChange={e=>setExtra(Number(e.target.value))} />
       </div>
       <div style={{display:'flex',justifyContent:'flex-end',marginTop:12}}>
         <button className="button" onClick={submit}>Submit Payment</button>

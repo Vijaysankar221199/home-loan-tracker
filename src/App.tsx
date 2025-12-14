@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <SettingsModal visible={showSettings} settings={settings} onClose={()=>setShowSettings(false)} onSave={saveSettings} />
-      <div className="footer">Built with care · Mock JSON backend · No external storage</div>
+      <div className="footer">Built with care</div>
     </div>
   );
 };

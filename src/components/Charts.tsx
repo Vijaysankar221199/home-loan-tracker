@@ -16,7 +16,7 @@ const Charts: React.FC<{payments:any[]}> = ({payments}) => {
   const extra = payments.map(p=>p.extraPaid||0);
 
   return (
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+    <div style={{display:'grid'}}>
       <div className="card">
         <div style={{fontWeight:700,marginBottom:8}}>EMI vs Extra</div>
         <Bar data={{labels, datasets:[{label:'EMI',data:emi, backgroundColor:colors.primary},{label:'Extra',data:extra, backgroundColor:colors.accent}]}} options={{plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}} />

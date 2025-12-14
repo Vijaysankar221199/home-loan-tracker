@@ -14,7 +14,7 @@ const SettingsModal: React.FC<{
   onSave: (settings: Settings) => void;
 }> = ({visible, onClose, settings, onSave}) => {
   const [form, setForm] = useState({principalAmount:'', annualInterestRate:'', tenureYears:''});
-  useEffect(()=>{ if(settings){ setForm({ principalAmount:settings.principalAmount, annualInterestRate:settings.annualInterestRate, tenureYears:settings.tenureYears }); } },[settings]);
+  useEffect(()=>{ if(settings){ setForm({ principalAmount:settings.principalAmount.toString(), annualInterestRate:settings.annualInterestRate.toString(), tenureYears:settings.tenureYears.toString() }); } },[settings]);
   if(!visible) return null;
   const update = (k:string,v:string)=> setForm(f=>({...f,[k]:v}));
   const submit = ()=>{
@@ -32,18 +32,18 @@ const SettingsModal: React.FC<{
       <div className="card" style={{width:420}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div style={{fontWeight:700}}>Loan Settings</div>
-          <div style={{color:'var(--muted)'}}>{settings && `EMI: ${settings.calculatedEmi?.toFixed(2)||'...'}`}</div>
+          <div style={{color:'var(--muted)'}}>{settings && `EMI: ${settings.calculatedEmi||'...'}`}</div>
         </div>
         <div style={{marginTop:12}}>
           <div className="label">Principal Amount</div>
-          <input className="input" value={form.principalAmount} onChange={e=>update('principalAmount', e.target.value)} />
+          <input className="input" type="number" min="0" value={form.principalAmount} onChange={e=>update('principalAmount', e.target.value)} />
           <div className="label">Annual Interest Rate (%)</div>
-          <input className="input" value={form.annualInterestRate} onChange={e=>update('annualInterestRate', e.target.value)} />
+          <input className="input" type="number" min="0" step="0.01" value={form.annualInterestRate} onChange={e=>update('annualInterestRate', e.target.value)} />
           <div className="label">Tenure (years)</div>
-          <input className="input" value={form.tenureYears} onChange={e=>update('tenureYears', e.target.value)} />
+          <input className="input" type="number" min="1" value={form.tenureYears} onChange={e=>update('tenureYears', e.target.value)} />
         </div>
         <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:12}}>
-          <button className="button ghost" onClick={onClose}>Cancel</button>
+          <button className="button" onClick={onClose}>Cancel</button>
           <button className="button" onClick={submit}>Save</button>
         </div>
       </div>
