@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsModalProps } from '../types';
+import { calculateEmi } from '../utils/loanUtils';
 
 /**
  * SettingsModal component for editing loan settings.
@@ -47,7 +48,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose, settings
       <div className="card" style={{width:420}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div style={{fontWeight:700}}>Loan Settings</div>
-          <div style={{color:'var(--muted)'}}>{settings && `EMI: ${settings.calculatedEmi||'...'}`}</div>
+          <div style={{color:'var(--muted)'}}>
+            EMI: ₹{Math.round(calculateEmi(Number(form.principalAmount) || 0, Number(form.annualInterestRate) || 0, Number(form.tenureYears) || 0)) || '...'}
+          </div>
         </div>
         <div style={{marginTop:12}}>
           <div className="label">Principal Amount</div>

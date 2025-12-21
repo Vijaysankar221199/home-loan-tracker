@@ -33,11 +33,16 @@ router.get('/', async (req, res) => {
   try {
     let store = await LoanStore.findOne();
     if (!store) {
+      console.log('No loan store found, creating initial data');
       store = new LoanStore(initialData);
       await store.save();
+      console.log('Initial loan store created');
+    } else {
+      console.log('Loan store loaded from database');
     }
     res.json(store);
   } catch (err) {
+    console.error('Error loading loan store:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -54,14 +59,21 @@ router.put('/settings', async (req, res) => {
     if (!store) {
       store = new LoanStore(initialData);
     }
-    store.loanSettings = { ...store.loanSettings, ...req.body };
+    console.info('Updating loan settings');
+    // Update individual fields to ensure Mongoose subdoc updates correctly
+    if (req.body.principalAmount !== undefined) store.loanSettings.principalAmount = req.body.principalAmount;
+    if (req.body.annualInterestRate !== undefined) store.loanSettings.annualInterestRate = req.body.annualInterestRate;
+    if (req.body.tenureYears !== undefined) store.loanSettings.tenureYears = req.body.tenureYears;
+    if (req.body.calculatedEmi !== undefined) store.loanSettings.calculatedEmi = req.body.calculatedEmi;
     store.loanSettings.calculatedEmi = null;
     store.summary.remainingPrincipal = store.loanSettings.principalAmount;
     store.monthlyPayments = [];
     store.summary = { ...store.summary, totalPaid:0, totalInterestPaid:0, monthsCompleted:0, forecastedEndDate:null, interestSavedDueToExtra:0, principalPaidFromEmi:0, principalPaidFromExtra:0 };
     await store.save();
+    console.info('Loan settings updated successfully');
     res.json(store);
   } catch (err) {
+    console.error('Error updating settings:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -82,8 +94,10 @@ router.post('/payments', async (req, res) => {
     const idx = store.monthlyPayments.findIndex(m => m.month === entry.month);
     if (idx >= 0) {
       store.monthlyPayments[idx] = entry;
+      console.info(`Updated payment for month: ${entry.month}`);
     } else {
       store.monthlyPayments.push(entry);
+      console.info(`Added new payment for month: ${entry.month}`);
     }
     store.monthlyPayments.sort((a, b) => a.month.localeCompare(b.month));
 
@@ -109,8 +123,10 @@ router.post('/payments', async (req, res) => {
       store.summary.forecastedEndDate = last.month;
     }
     await store.save();
+    console.info('Payment saved and summary recalculated');
     res.json(entry);
   } catch (err) {
+    console.error('Error adding payment:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -133,8 +149,10 @@ router.put('/payments/:oldMonth', async (req, res) => {
 
     // Remove old
     store.monthlyPayments = store.monthlyPayments.filter(m => m.month !== oldMonth);
+    console.info(`Removed payment for month: ${oldMonth}`);
     // Add new
     store.monthlyPayments.push(newEntry);
+    console.info(`Added updated payment for month: ${newEntry.month}`);
     store.monthlyPayments.sort((a, b) => a.month.localeCompare(b.month));
 
     // Recalculate all
@@ -168,8 +186,10 @@ router.put('/payments/:oldMonth', async (req, res) => {
       store.summary.forecastedEndDate = last.month;
     }
     await store.save();
+    console.info('Payment edited and summary recalculated');
     res.json(newEntry);
   } catch (err) {
+    console.error('Error editing payment:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -195,6 +215,7 @@ router.delete('/payments/:month', async (req, res) => {
     if (store.monthlyPayments.length === initialLength) {
       return res.status(404).json({ message: 'Payment not found' });
     }
+    console.info(`Deleted payment for month: ${month}`);
 
     // Recalculate all
     let remaining = store.loanSettings.principalAmount;
@@ -229,8 +250,10 @@ router.delete('/payments/:month', async (req, res) => {
       store.summary.forecastedEndDate = null;
     }
     await store.save();
+    console.info('Payment deleted and summary recalculated');
     res.json({ message: 'Payment deleted successfully' });
   } catch (err) {
+    console.error('Error deleting payment:', err);
     res.status(500).json({ message: err.message });
   }
 });
