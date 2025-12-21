@@ -17,7 +17,9 @@ const initialData: LoanStore = {
     remainingPrincipal: 500000,
     monthsCompleted: 0,
     forecastedEndDate: null,
-    interestSavedDueToExtra: 0
+    interestSavedDueToExtra: 0,
+    principalPaidFromEmi: 0,
+    principalPaidFromExtra: 0
   }
 };
 
@@ -81,7 +83,7 @@ export const MockBackend = {
     store.loanSettings.calculatedEmi = null;
     store.summary.remainingPrincipal = store.loanSettings.principalAmount;
     store.monthlyPayments = [];
-    store.summary = { ...store.summary, totalPaid:0, totalInterestPaid:0, monthsCompleted:0, forecastedEndDate:null, interestSavedDueToExtra:0 };
+    store.summary = { ...store.summary, totalPaid:0, totalInterestPaid:0, monthsCompleted:0, forecastedEndDate:null, interestSavedDueToExtra:0, principalPaidFromEmi:0, principalPaidFromExtra:0 };
     saveToStorage(store);
     return store;
   },

@@ -58,5 +58,16 @@ export const ApiService = {
     });
     if (!response.ok) throw new Error('Failed to edit payment');
     return response.json();
+  },
+  /**
+   * Deletes a monthly payment entry.
+   * @param month - The month of the entry to delete.
+   * @returns A promise that resolves when deleted.
+   */
+  async deleteMonthlyPayment(month: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/payments/${month}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete payment');
   }
 };

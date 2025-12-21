@@ -12,6 +12,7 @@ A comprehensive personal home loan tracker web application built with React, Typ
 
 ### Analytics & Insights
 - **Summary Statistics**: Track total paid, interest paid, remaining principal, and loan progress
+- **Principal Breakdown**: Separate tracking of principal paid from EMI vs extra payments
 - **Visual Charts**: Bar charts comparing EMI vs extra payments over time
 - **Forecast Analysis**: Predict loan payoff scenarios with extra payments
 - **Interest Savings Calculator**: See potential months saved and interest saved
@@ -120,9 +121,12 @@ npm run dev
 4. Optionally add extra principal payment
 5. Click "Submit Payment"
 
-### Editing Payments
-- Use the "Edit Payments" section to modify existing entries
-- Click "Edit" on any payment to update EMI or extra amounts
+### Managing Payment History
+1. Click the "Payment History" button in the header to open the detailed modal.
+2. View all payments in a table format with full details (EMI, Extra, Interest, Principal, Remaining).
+3. Edit payments inline by clicking "Edit" on any row.
+4. Delete payments by clicking "Delete" (with confirmation prompt).
+5. All changes automatically update the summary statistics.
 
 ### Viewing Analytics
 - **Stats Cards**: Overview of total paid, interest paid, remaining principal, and progress
@@ -141,13 +145,13 @@ npm run dev
 ```
 src/
 ├── components/          # React components
-│   ├── App.tsx         # Main app component
-│   ├── Header.tsx      # App header with navigation
-│   ├── StatsCard.tsx   # Statistics display cards
-│   ├── PaymentForm.tsx # Payment entry form
-│   ├── EditPayments.tsx # Payment editing interface
-│   ├── Charts.tsx      # Chart visualization
-│   └── SettingsModal.tsx # Loan settings modal
+│   ├── App.tsx             # Main app component
+│   ├── Header.tsx          # App header with navigation
+│   ├── StatsCard.tsx       # Statistics display cards
+│   ├── PaymentForm.tsx     # Payment entry form
+│   ├── PaymentHistoryModal.tsx # Modal for detailed payment history
+│   ├── Charts.tsx          # Chart visualization
+│   └── SettingsModal.tsx   # Loan settings modal
 ├── hooks/              # Custom React hooks
 │   └── useLoanTracker.tsx # Main data management hook
 ├── services/           # Data services

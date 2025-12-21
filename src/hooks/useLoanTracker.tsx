@@ -82,6 +82,14 @@ export const useLoanTracker = () => {
     setData(newStore);
   },[]);
 
+  const deleteMonthlyPayment = useCallback(async (month: string)=>{
+    await ApiService.deleteMonthlyPayment(month);
+    // reload
+    const newStore = await ApiService.load();
+    newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
+    setData(newStore);
+  },[]);
+
   const forecast = useMemo(()=>{
     if(!data) return null;
     const settings = data.loanSettings;
@@ -117,6 +125,7 @@ export const useLoanTracker = () => {
     saveSettings,
     addMonthlyPayment,
     editMonthlyPayment,
+    deleteMonthlyPayment,
     forecast
   };
 };

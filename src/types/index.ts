@@ -48,6 +48,10 @@ export interface SummaryStats {
   forecastedEndDate: string | null;
   /** The interest saved due to extra payments. */
   interestSavedDueToExtra: number;
+  /** The principal paid from actual EMI. */
+  principalPaidFromEmi: number;
+  /** The principal paid from extra payments. */
+  principalPaidFromExtra: number;
 }
 
 /**
@@ -96,6 +100,8 @@ export interface EditPaymentsProps {
   payments: MonthlyPayment[];
   /** Callback to handle editing a payment. */
   onEdit: (data: { oldMonth: string; month: string; emiPaid: number; extraPaid: number }) => Promise<void>;
+  /** Callback to handle deleting a payment. */
+  onDelete?: (month: string) => Promise<void>;
 }
 
 /**
