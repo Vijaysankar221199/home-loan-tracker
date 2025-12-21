@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { MockBackend } from '../services/mockBackend';
+import { ApiService } from '../services/apiService';
 import { calculateEmi, generateAmortizationSchedule } from '../utils/loanUtils';
 import { LoanStore, LoanSettings, AmortizationEntry } from '../types';
 
@@ -15,7 +15,7 @@ export const useLoanTracker = () => {
   useEffect(()=>{
     let cancelled=false;
     setLoading(true);
-    MockBackend.load().then(d=>{ if(!cancelled){
+    ApiService.load().then(d=>{ if(!cancelled){
       // ensure EMI
       if(!d.loanSettings.calculatedEmi){
         d.loanSettings.calculatedEmi = calculateEmi(d.loanSettings.principalAmount, d.loanSettings.annualInterestRate, d.loanSettings.tenureYears);
@@ -29,7 +29,7 @@ export const useLoanTracker = () => {
   const saveSettings = useCallback(async (settings: Partial<LoanSettings>)=>{
     setLoading(true);
     try{
-      const newStore = await MockBackend.saveSettings(settings);
+      const newStore = await ApiService.saveSettings(settings);
       newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
       newStore.summary.remainingPrincipal = newStore.loanSettings.principalAmount;
       setData(newStore);
@@ -58,9 +58,9 @@ export const useLoanTracker = () => {
       remainingPrincipal: remaining
     };
 
-    await MockBackend.addMonthlyPayment(entry);
+    await ApiService.addMonthlyPayment(entry);
     // reload
-    const newStore = await MockBackend.load();
+    const newStore = await ApiService.load();
     newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
     setData(newStore);
     return entry;
@@ -75,9 +75,17 @@ export const useLoanTracker = () => {
       principalComponent: 0,
       remainingPrincipal: 0
     };
-    await MockBackend.editMonthlyPayment(oldMonth, newEntry);
+    await ApiService.editMonthlyPayment(oldMonth, newEntry);
     // reload
-    const newStore = await MockBackend.load();
+    const newStore = await ApiService.load();
+    newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
+    setData(newStore);
+  },[]);
+
+  const deleteMonthlyPayment = useCallback(async (month: string)=>{
+    await ApiService.deleteMonthlyPayment(month);
+    // reload
+    const newStore = await ApiService.load();
     newStore.loanSettings.calculatedEmi = calculateEmi(newStore.loanSettings.principalAmount, newStore.loanSettings.annualInterestRate, newStore.loanSettings.tenureYears);
     setData(newStore);
   },[]);
@@ -117,6 +125,7 @@ export const useLoanTracker = () => {
     saveSettings,
     addMonthlyPayment,
     editMonthlyPayment,
+    deleteMonthlyPayment,
     forecast
   };
 };

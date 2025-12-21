@@ -5,15 +5,16 @@ import StatsCard from './components/StatsCard';
 import SettingsModal from './components/SettingsModal';
 import PaymentForm from './components/PaymentForm';
 import Charts from './components/Charts';
-import { EditPayments } from './components';
+import { PaymentHistoryModal } from './components';
 import { useLoanTracker } from './hooks/useLoanTracker';
 
 /**
  * Main dashboard component.
  */
 const Dashboard: React.FC = () => {
-  const { data, loading, error, saveSettings, addMonthlyPayment, editMonthlyPayment, forecast } = useLoanTracker();
+  const { data, loading, error, saveSettings, addMonthlyPayment, editMonthlyPayment, deleteMonthlyPayment, forecast } = useLoanTracker();
   const [showSettings, setShowSettings] = useState(false);
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
 
   if(loading) return <div className="card">Loading...</div>;
   if(error) return <div className="card">Error: {String(error)}</div>;
@@ -24,7 +25,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Header onOpenSettings={()=>setShowSettings(true)} />
+      <Header onOpenSettings={()=>setShowSettings(true)} onOpenPaymentHistory={()=>setShowPaymentHistory(true)} />
       <div className="row">
         <div className="col">
           <div className="stats-grid">
@@ -32,6 +33,8 @@ const Dashboard: React.FC = () => {
             <StatsCard title="Interest Paid" value={`₹ ${summary.totalInterestPaid||0}`} subtitle="Total interest" accent="var(--danger)" />
             <StatsCard title="Remaining" value={`₹ ${summary.remainingPrincipal||0}`} subtitle="Outstanding principal" accent="var(--success)" />
             <StatsCard title="Progress" value={`${Math.round(((settings.principalAmount - (summary.remainingPrincipal||settings.principalAmount))/settings.principalAmount)*100)||0}%`} subtitle={`${summary.monthsCompleted||0} months completed`} accent="var(--accent)" />
+            <StatsCard title="Principal from EMI" value={`₹ ${summary.principalPaidFromEmi||0}`} subtitle="Principal paid via EMI" accent="var(--primary)" />
+            <StatsCard title="Principal from Extra" value={`₹ ${summary.principalPaidFromExtra||0}`} subtitle="Principal paid via extra" accent="var(--info)" />
           </div>
           <div style={{marginTop:12}}>
             <Charts payments={data.monthlyPayments} />
@@ -41,12 +44,6 @@ const Dashboard: React.FC = () => {
           <PaymentForm defaultEmi={settings.calculatedEmi || 0} onSubmit={async (entry)=>{
             try{
               await addMonthlyPayment(entry);
-            }catch(e){alert((e as Error).message)}
-          }} />
-          <div style={{height:12}} />
-          <EditPayments payments={data.monthlyPayments} onEdit={async (editData)=>{
-            try{
-              await editMonthlyPayment(editData);
             }catch(e){alert((e as Error).message)}
           }} />
           <div style={{height:12}} />
@@ -62,6 +59,21 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <SettingsModal visible={showSettings} settings={settings} onClose={()=>setShowSettings(false)} onSave={saveSettings} />
+      <PaymentHistoryModal
+        visible={showPaymentHistory}
+        onClose={()=>setShowPaymentHistory(false)}
+        payments={data.monthlyPayments}
+        onEdit={async (editData)=>{
+          try{
+            await editMonthlyPayment(editData);
+          }catch(e){alert((e as Error).message)}
+        }}
+        onDelete={async (month)=>{
+          try{
+            await deleteMonthlyPayment(month);
+          }catch(e){alert((e as Error).message)}
+        }}
+      />
       <div className="footer">Built with care</div>
     </div>
   );
