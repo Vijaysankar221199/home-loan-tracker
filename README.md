@@ -1,6 +1,6 @@
 # Home Loan Tracker
 
-A comprehensive personal home loan tracker web application built with React, TypeScript, and Chart.js. Track your mortgage payments, analyze interest savings, and forecast loan payoff scenarios with an intuitive, responsive interface.
+A comprehensive personal home loan tracker web application built with React, TypeScript, Chart.js, and Node.js backend with MongoDB. Track your mortgage payments, analyze interest savings, and forecast loan payoff scenarios with an intuitive, responsive interface.
 
 ## 🚀 Features
 
@@ -24,13 +24,14 @@ A comprehensive personal home loan tracker web application built with React, Typ
 
 ### Technical Features
 - **TypeScript**: Full type safety throughout the application
-- **Local Storage**: Persistent data storage using browser localStorage
+- **Backend API**: RESTful API with MongoDB for data persistence
+- **Database**: MongoDB for storing loan data (replaces local storage)
 - **ESLint**: Code quality and consistency enforcement
-- **Mock Backend**: Simulated async operations for realistic UX
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18, TypeScript
+- **Backend**: Node.js, Express, MongoDB with Mongoose
 - **Styling**: CSS with CSS Variables for theming
 - **Charts**: Chart.js with react-chartjs-2
 - **Build Tool**: Vite
@@ -41,26 +42,66 @@ A comprehensive personal home loan tracker web application built with React, Typ
 
 - Node.js (v16 or higher)
 - npm or yarn
+- MongoDB Community Edition (installed locally) or MongoDB Atlas account
 
 ## 🚀 Getting Started
 
-1. **Clone the repository**:
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd ome-laon-tracker
+```
+
+### 2. Install Frontend Dependencies
+```bash
+npm install
+```
+
+### 3. Install Backend Dependencies
+```bash
+npm run backend:install
+```
+
+### 4. Set Up MongoDB
+
+#### Option A: Local MongoDB Installation
+1. **Download and Install MongoDB Community Edition** from [mongodb.com](https://www.mongodb.com/try/download/community).
+2. **Create Data Directory** (inside the project):
    ```bash
-   git clone <repository-url>
-   cd ome-laon-tracker
+   mkdir data
+   ```
+3. **Start MongoDB** (replace `<path>` with your MongoDB bin directory, e.g., `C:\Program Files\MongoDB\Server\8.2\bin`):
+   ```bash
+   "<path>\mongod.exe" --dbpath .\data
+   ```
+   - Keep this terminal running (MongoDB will listen on `localhost:27017`).
+
+#### Option B: MongoDB Atlas (Cloud)
+1. Sign up at [MongoDB Atlas](https://www.mongodb.com/atlas).
+2. Create a free cluster and get the connection string.
+3. Update `backend/.env`:
+   ```
+   MONGO_URI=your-atlas-connection-string
+   PORT=5000
    ```
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+### 5. Start the Backend Server
+```bash
+npm run backend
+```
+- The server runs on `http://localhost:5000`.
 
-3. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
+### 6. Start the Frontend Development Server
+In a new terminal:
+```bash
+npm run dev
+```
+- Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-4. **Open your browser** and navigate to [http://localhost:5173](http://localhost:5173)
+### 7. Verify Database Connection
+- Open MongoDB Compass.
+- Connect to `mongodb://localhost:27017` (or your Atlas URI).
+- You should see the `loantracker` database with the `loanstores` collection.
 
 ## 📖 Usage
 
@@ -88,6 +129,10 @@ A comprehensive personal home loan tracker web application built with React, Typ
 - **Charts**: Visual representation of EMI vs extra payments
 - **Forecast**: See potential savings with current extra payment patterns
 
+### Data Persistence
+- All loan data is stored in MongoDB, ensuring persistence across sessions and devices.
+- Use MongoDB Compass to view/edit data directly in the database.
+
 ### Theme Switching
 - Click the theme toggle button in the header to switch between light and dark modes
 
@@ -106,7 +151,7 @@ src/
 ├── hooks/              # Custom React hooks
 │   └── useLoanTracker.tsx # Main data management hook
 ├── services/           # Data services
-│   └── mockBackend.ts  # Local storage operations
+│   └── apiService.ts   # API calls to backend
 ├── themes/             # Theme management
 │   └── themeContext.tsx # Theme context provider
 ├── types/              # TypeScript type definitions
@@ -114,6 +159,15 @@ src/
 ├── utils/              # Utility functions
 │   └── loanUtils.ts    # Loan calculation utilities
 └── styles.css          # Global styles
+
+backend/
+├── models/             # Mongoose models
+│   └── LoanStore.js    # Loan data schema
+├── routes/             # API routes
+│   └── loan.js         # Loan CRUD operations
+├── server.js           # Express server setup
+├── package.json        # Backend dependencies
+└── .env                # Environment variables
 ```
 
 ## 🤝 Contributing
